@@ -1,99 +1,210 @@
-# Copyright 2019 The Keras Tuner Authors
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     https://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-"""Keras Tuner hello world with MNIST."""
+""" A simple helloworld example
 
-import numpy as np
-
+Different workflows are shown here.
+"""
 from tensorflow import keras
-from tensorflow.keras.utils import to_categorical
-from tensorflow.keras.optimizers import Adam
 from tensorflow.keras import layers
-from tensorflow.keras.datasets import mnist
 
-from kerastuner import RandomSearch
 
-TRIALS = 3  # number of models to train
-EPOCHS = 2  # number of epoch per model
+from kerastuner.tuners import RandomSearch
+from kerastuner.engine.hypermodel import HyperModel
+from kerastuner.engine.hyperparameters import HyperParameters
 
-# Get the MNIST dataset.
-(x_train, y_train), (x_val, y_val) = mnist.load_data()
-x_train = np.expand_dims(x_train.astype('float32') / 255, -1)
-x_val = np.expand_dims(x_val.astype('float32') / 255, -1)
-y_train = to_categorical(y_train, 10)
-y_val = to_categorical(y_val, 10)
+
+(x, y), (val_x, val_y) = keras.datasets.mnist.load_data()
+x = x.astype('float32') / 255.
+val_x = val_x.astype('float32') / 255.
+
+x = x[:10000]
+y = y[:10000]
+
+
+"""Basic case:
+- We define a `build_model` function
+- It returns a compiled model
+- It uses hyperparameters defined on the fly
+"""
 
 
 def build_model(hp):
-    """Function that build a TF model based on hyperparameters values.
-
-    Args:
-        hp (HyperParameter): hyperparameters values
-
-    Returns:
-        Model: Compiled model
-    """
-
-    num_layers = hp.Int('num_layers', 2, 8, default=6)
-    lr = hp.Choice('learning_rate', [1e-3, 5e-4])
-
-    inputs = layers.Input(shape=(28, 28, 1))
-    x = inputs
-
-    for idx in range(num_layers):
-        idx = str(idx)
-
-        filters = hp.Int('filters_' + idx, 32, 256, step=32, default=64)
-        x = layers.Conv2D(filters=filters, kernel_size=3, padding='same',
-                          activation='relu')(x)
-
-        # add a pooling layers if needed
-        if x.shape[1] >= 8:
-            pool_type = hp.Choice('pool_' + idx, values=['max', 'avg'])
-            if pool_type == 'max':
-                x = layers.MaxPooling2D(2)(x)
-            elif pool_type == 'avg':
-                x = layers.AveragePooling2D(2)(x)
-
-    x = layers.Flatten()(x)
-    outputs = layers.Dense(10, activation='softmax')(x)
-
-    # Build model
-    model = keras.Model(inputs, outputs)
-    model.compile(optimizer=Adam(lr),
-                  loss='categorical_crossentropy',
-                  metrics=['accuracy'])
+    model = keras.Sequential()
+    model.add(layers.Flatten(input_shape=(28, 28)))
+    for i in range(hp.Int('num_layers', 2, 20)):
+        model.add(layers.Dense(units=hp.Int('units_' + str(i), 32, 512, 32),
+                               activation='relu'))
+    model.add(layers.Dense(10, activation='softmax'))
+    model.compile(
+        optimizer=keras.optimizers.Adam(
+            hp.Choice('learning_rate', [1e-2, 1e-3, 1e-4])),
+        loss='sparse_categorical_crossentropy',
+        metrics=['accuracy'])
     return model
 
 
-# Initialize the tuner by passing the `build_model` function
-# and specifying key search constraints: maximize val_acc (objective),
-# and the number of trials to do. More efficient tuners like UltraBand() can
-# be used.
-tuner = RandomSearch(build_model, objective='val_accuracy', max_trials=TRIALS,
-                     project_name='hello_world_tutorial_results')
+tuner = RandomSearch(
+    build_model,
+    objective='val_accuracy',
+    max_trials=5,
+    executions_per_trial=3,
+    directory='test_dir')
 
-# Display search space overview
 tuner.search_space_summary()
 
-# Perform the model search. The search function has the same signature
-# as `model.fit()`.
-tuner.search(x_train, y_train, batch_size=128, epochs=2,
-             validation_data=(x_val, y_val))
+tuner.search(x=x,
+             y=y,
+             epochs=3,
+             validation_data=(val_x, val_y))
 
-# Display the best models, their hyperparameters, and the resulting metrics.
 tuner.results_summary()
 
-# Retrieve the best model and display its architecture
-best_model = tuner.get_best_models(num_models=1)[0]
-best_model.summary()
+
+# """Case #2:
+# - We override the loss and metrics
+# """
+
+tuner = RandomSearch(
+    build_model,
+    objective='val_accuracy',
+    loss=keras.losses.SparseCategoricalCrossentropy(name='my_loss'),
+    metrics=['accuracy', 'mse'],
+    max_trials=5,
+    directory='test_dir')
+
+tuner.search(x, y,
+             epochs=5,
+             validation_data=(val_x, val_y))
+
+
+# """Case #3:
+# - We define a HyperModel subclass
+# """
+
+
+class MyHyperModel(HyperModel):
+
+    def __init__(self, img_size, num_classes):
+        self.img_size = img_size
+        self.num_classes = num_classes
+
+    def build(self, hp):
+        model = keras.Sequential()
+        model.add(layers.Flatten(input_shape=self.img_size))
+        for i in range(hp.Int('num_layers', 2, 20)):
+            model.add(layers.Dense(units=hp.Int('units_' + str(i), 32, 512, 32),
+                                   activation='relu'))
+        model.add(layers.Dense(self.num_classes, activation='softmax'))
+        model.compile(
+            optimizer=keras.optimizers.Adam(
+                hp.Choice('learning_rate', [1e-2, 1e-3, 1e-4])),
+            loss='sparse_categorical_crossentropy',
+            metrics=['accuracy'])
+        return model
+
+
+tuner = RandomSearch(
+    MyHyperModel(img_size=(28, 28), num_classes=10),
+    objective='val_accuracy',
+    max_trials=5,
+    directory='test_dir')
+
+tuner.search(x,
+             y=y,
+             epochs=5,
+             validation_data=(val_x, val_y))
+
+# """Case #4:
+# - We restrict the search space
+# - This means that default values are being used for params that are left out
+# """
+
+hp = HyperParameters()
+hp.Choice('learning_rate', [1e-1, 1e-3])
+
+tuner = RandomSearch(
+    build_model,
+    max_trials=5,
+    hyperparameters=hp,
+    tune_new_entries=False,
+    objective='val_accuracy')
+
+tuner.search(x=x,
+             y=y,
+             epochs=5,
+             validation_data=(val_x, val_y))
+
+# """Case #5:
+# - We override specific parameters with fixed values that aren't the default
+# """
+
+hp = HyperParameters()
+hp.Fixed('learning_rate', 0.1)
+
+tuner = RandomSearch(
+    build_model,
+    max_trials=5,
+    hyperparameters=hp,
+    tune_new_entries=True,
+    objective='val_accuracy')
+
+tuner.search(x=x,
+             y=y,
+             epochs=5,
+             validation_data=(val_x, val_y))
+
+
+# """Case #6:
+# - We reparameterize the search space
+# - This means that we override the distribution of specific hyperparameters
+# """
+
+hp = HyperParameters()
+hp.Choice('learning_rate', [1e-1, 1e-3])
+
+tuner = RandomSearch(
+    build_model,
+    max_trials=5,
+    hyperparameters=hp,
+    tune_new_entries=True,
+    objective='val_accuracy')
+
+tuner.search(x=x,
+             y=y,
+             epochs=5,
+             validation_data=(val_x, val_y))
+
+
+# """Case #7:
+# - We predefine the search space
+# - No unregistered parameters are allowed in `build`
+# """
+
+hp = HyperParameters()
+hp.Choice('learning_rate', [1e-1, 1e-3])
+hp.Int('num_layers', 2, 20)
+
+
+def build_model(hp):
+    model = keras.Sequential()
+    model.add(layers.Flatten(input_shape=(28, 28)))
+    for i in range(hp.get('num_layers')):
+        model.add(layers.Dense(32,
+                               activation='relu'))
+    model.add(layers.Dense(10, activation='softmax'))
+    model.compile(
+        optimizer=keras.optimizers.Adam(hp.get('learning_rate')),
+        loss='sparse_categorical_crossentropy',
+        metrics=['accuracy'])
+    return model
+
+
+tuner = RandomSearch(
+    build_model,
+    max_trials=5,
+    hyperparameters=hp,
+    allow_new_entries=False,
+    objective='val_accuracy')
+
+tuner.search(x=x,
+             y=y,
+             epochs=5,
+             validation_data=(val_x, val_y))
