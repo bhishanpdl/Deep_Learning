@@ -3,3 +3,9 @@
 - [keras](https://github.com/keras-team/keras)
 - [pytorch](https://github.com/pytorch/pytorch)
 - [einops](https://github.com/arogozhnikov/einops)
+
+
+# Installations
+```bash
+conda install -c conda-forge einops
+```
