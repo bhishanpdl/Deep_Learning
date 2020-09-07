@@ -13,3 +13,7 @@
 
 # Microsoft Tensorwatch
 https://www.microsoft.com/en-us/research/blog/microsoft-makes-ai-debugging-and-visualization-tool-tensorwatch-open-source/
+
+
+# Visualize models
+- https://viscom.net2vis.uni-ulm.de/
