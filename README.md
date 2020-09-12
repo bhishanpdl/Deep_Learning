@@ -1,6 +1,7 @@
 # Resources
 - [Collection of deep learning courses](https://deep-learning-drizzle.github.io/index.html)
 - [Computer Vision Notebooks](https://www.qblocks.cloud/creators/computer-vision-google-colab-notebooks)
+- [Top github starred deep learning](https://github.com/bhishanpdl/Top-Deep-Learning)
 
 # Deep Learning Tools
 - [TensorBoard.dev](https://tensorboard.dev/)
