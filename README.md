@@ -18,3 +18,6 @@ https://www.microsoft.com/en-us/research/blog/microsoft-makes-ai-debugging-and-v
 
 # Visualize models
 - https://viscom.net2vis.uni-ulm.de/
+
+# Kaggle Kernels
+- [Good kernel: understanding CNN with keras](https://www.kaggle.com/amarjeet007/visualize-cnn-with-keras)
