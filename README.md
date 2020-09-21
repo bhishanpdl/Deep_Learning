@@ -1,4 +1,8 @@
-# Resources
+
+# Tutorials
+- [Excellent: Understanding LSTM Networks](http://colah.github.io/posts/2015-08-Understanding-LSTMs/)
+
+# Courses
 - [Collection of deep learning courses](https://deep-learning-drizzle.github.io/index.html)
 - [Computer Vision Notebooks](https://www.qblocks.cloud/creators/computer-vision-google-colab-notebooks)
 - [Top github starred deep learning](https://github.com/bhishanpdl/Top-Deep-Learning)
@@ -10,7 +14,6 @@
 
 # Deep Learning Modules
 - [pytorch-optimizer](https://github.com/jettify/pytorch-optimizer)
-
 
 # Microsoft Tensorwatch
 https://www.microsoft.com/en-us/research/blog/microsoft-makes-ai-debugging-and-visualization-tool-tensorwatch-open-source/
