@@ -1,6 +1,16 @@
+Table of Contents
+=================
+   * [Tutorials](#tutorials)
+   * [Courses](#courses)
+   * [Deep Learning Tools](#deep-learning-tools)
+   * [Deep Learning Modules](#deep-learning-modules)
+   * [Microsoft Tensorwatch](#microsoft-tensorwatch)
+   * [Visualize models](#visualize-models)
+   * [Kaggle Kernels](#kaggle-kernels)
 
 # Tutorials
 - [Excellent: Understanding LSTM Networks](http://colah.github.io/posts/2015-08-Understanding-LSTMs/)
+- [CNN Explainer](https://poloclub.github.io/cnn-explainer/)
 
 # Courses
 - [Collection of deep learning courses](https://deep-learning-drizzle.github.io/index.html)
