@@ -30,7 +30,8 @@ https://www.microsoft.com/en-us/research/blog/microsoft-makes-ai-debugging-and-v
 
 
 # Visualize models
-- https://viscom.net2vis.uni-ulm.de/
+- [net2vis](https://viscom.net2vis.uni-ulm.de/)
+- [Tinker With a Neural Network in Your Browser](http://playground.tensorflow.org/#activation=tanh&batchSize=10&dataset=spiral&regDataset=reg-plane&learningRate=0.03&regularizationRate=0&noise=0&networkShape=4,2&seed=0.76725&showTestData=false&discretize=false&percTrainData=50&x=true&y=true&xTimesY=false&xSquared=false&ySquared=false&cosX=false&sinX=false&cosY=false&sinY=false&collectStats=false&problem=classification&initZero=false&hideText=false)
 
 # Kaggle Kernels
 - [Good kernel: understanding CNN with keras](https://www.kaggle.com/amarjeet007/visualize-cnn-with-keras)
