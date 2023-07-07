@@ -24,6 +24,7 @@ Table of Contents
 
 # Deep Learning Modules
 - [pytorch-optimizer](https://github.com/jettify/pytorch-optimizer)
+- [Deep-TDA](https://mlcolvar.readthedocs.io/en/latest/notebooks/tutorials/cvs_DeepTDA.html) (Better than t-SNE and UMAP)
 
 # Microsoft Tensorwatch
 https://www.microsoft.com/en-us/research/blog/microsoft-makes-ai-debugging-and-visualization-tool-tensorwatch-open-source/
